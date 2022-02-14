@@ -20,8 +20,11 @@ class IrUiView(models.Model):
         """
         res = super(IrUiView, self).render_template(template, values, engine)
         website_id = self.env.context.get('website_id')
-        if website_id and not \
-                self.env['website'].browse(website_id).is_publisher():
+        if (
+            website_id and
+            not self.env['website'].browse(website_id).is_publisher() and
+            not res.startswith(b"<?xml")
+        ):
             html = lxml.html.fromstring(res.decode('UTF-8'))
             imgs = html.xpath(
                 '//main//img[@src][not(hasclass("lazyload-disable"))]'
